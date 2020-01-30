@@ -1,5 +1,6 @@
 package io.swagger.codegen;
 
+import io.swagger.models.properties.ObjectProperty;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
@@ -285,7 +286,7 @@ public class DefaultCodegen {
     }
 
     /**
-     * Returns the common prefix of variables for enum naming if 
+     * Returns the common prefix of variables for enum naming if
      * two or more variables are present
      *
      * @param vars List of variable names
@@ -1889,6 +1890,12 @@ public class DefaultCodegen {
             updatePropertyForMap(property, cp);
         } else {
             setNonArrayMapProperty(property, type);
+            if ("object".equals(p.getType()) && p instanceof ObjectProperty) {
+                ObjectProperty op = (ObjectProperty) p;
+                if (op.getProperties().isEmpty()) {
+                    property.isFreeFormObject = true;
+                }
+            }
         }
         return property;
     }

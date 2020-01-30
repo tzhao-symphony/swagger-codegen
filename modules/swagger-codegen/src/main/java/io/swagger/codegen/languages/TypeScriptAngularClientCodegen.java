@@ -1,5 +1,6 @@
 package io.swagger.codegen.languages;
 
+import io.swagger.codegen.CodegenProperty;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -461,5 +462,21 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
         String name = filename.substring((modelPackage() + "/").length());
         return camelize(name);
     }
+
+    @Override
+    public void updateCodegenPropertyEnum(CodegenProperty var) {
+        super.updateCodegenPropertyEnum(var);
+
+        // Fix enum with default value
+        if (var.isEnum) {
+            var.defaultValue = toEnumDefaultValue(var.defaultValue, "string");
+        }
+    }
+
+    @Override
+    public String toEnumDefaultValue(String value, String datatype) {
+        return "'" + toEnumVarName(value, datatype) + "'";
+    }
+
 
 }
