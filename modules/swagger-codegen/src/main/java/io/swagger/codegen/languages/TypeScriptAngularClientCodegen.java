@@ -380,6 +380,7 @@ public class TypeScriptAngularClientCodegen extends AbstractTypeScriptClientCode
                 }
                 // Add additional filename information for imports
                 mo.put("tsImports", toTsImports(cm, cm.imports));
+                mo.put("tsEnumImports", toTsImports(cm, cm.enumImports));
             }
         }
         return result;

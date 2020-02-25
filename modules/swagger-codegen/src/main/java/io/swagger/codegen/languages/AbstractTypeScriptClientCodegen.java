@@ -499,18 +499,18 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
             // name enum with model name, e.g. StatusEnum => Pet.StatusEnum
             for (CodegenProperty var : cm.vars) {
                 if (Boolean.TRUE.equals(var.isEnum)) {
-                    var.datatypeWithEnum = var.datatypeWithEnum.replace(var.enumName, cm.classname + "." + var.enumName);
+                    var.datatypeWithEnum = var.datatypeWithEnum.replace(var.enumName, cm.classname + "Enums." + var.enumName);
                 }
             }
             if (cm.parent != null) {
                 for (CodegenProperty var : cm.allVars) {
                     if (Boolean.TRUE.equals(var.isEnum)) {
                         var.datatypeWithEnum = var.datatypeWithEnum
-                            .replace(var.enumName, cm.classname + "." + var.enumName);
+                            .replace(var.enumName, cm.classname + "Enums." + var.enumName);
                     }
                 }
             }
-        } 
+        }
 
         return objs;
     }
@@ -529,6 +529,18 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
                         this.setDiscriminatorValue(child, cm.discriminator, this.getDiscriminatorValue(child));
                     }
                 }
+
+                // fix enums
+                if (cm.children != null && cm.hasEnums && isEnumInModel(cm)) {
+                   for (CodegenModel child : cm.children) {
+                       for (CodegenProperty var : child.allVars) {
+                           if (var.isEnum && isEnumInModel(cm, var.enumName)) {
+                               var.datatypeWithEnum = var.datatypeWithEnum.replace(child.classname, cm.classname);
+                               child.enumImports.add(cm.classname);
+                           }
+                       }
+                   }
+                }
             }
         }
         return result;
@@ -540,6 +552,24 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
 
     public Boolean getSupportsES6() {
         return supportsES6;
+    }
+
+    private boolean isEnumInModel(CodegenModel model) {
+        for (CodegenProperty var : model.vars) {
+            if (var.isEnum) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isEnumInModel(CodegenModel model, String enumName) {
+        for (CodegenProperty var : model.vars) {
+            if (enumName.equals(var.enumName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setDiscriminatorValue(CodegenModel model, String baseName, String value) {
