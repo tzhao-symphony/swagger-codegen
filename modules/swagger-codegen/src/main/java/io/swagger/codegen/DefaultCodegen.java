@@ -3189,7 +3189,7 @@ public class DefaultCodegen {
 
             Set<String> mandatory = required == null ? Collections.<String> emptySet()
                     : new TreeSet<String>(required);
-            addVars(m, m.vars, properties, mandatory, allDefinitions);
+            addVars(m, m.vars, properties, mandatory, allDefinitions, false);
             m.allMandatory = m.mandatory = mandatory;
         } else {
             m.emptyVars = true;
@@ -3200,12 +3200,12 @@ public class DefaultCodegen {
         if (allProperties != null) {
             Set<String> allMandatory = allRequired == null ? Collections.<String> emptySet()
                     : new TreeSet<String>(allRequired);
-            addVars(m, m.allVars, allProperties, allMandatory, allDefinitions);
+            addVars(m, m.allVars, allProperties, allMandatory, allDefinitions, true);
             m.allMandatory = allMandatory;
         }
     }
 
-    private void addVars(CodegenModel m, List<CodegenProperty> vars, Map<String, Property> properties, Set<String> mandatory, Map<String, Model> allDefinitions) {
+    private void addVars(CodegenModel m, List<CodegenProperty> vars, Map<String, Property> properties, Set<String> mandatory, Map<String, Model> allDefinitions, boolean isAllProperties) {
         // convert set to list so that we can access the next entry in the loop
         List<Map.Entry<String, Property>> propertyList = new ArrayList<Map.Entry<String, Property>>(properties.entrySet());
         final int totalCount = propertyList.size();
@@ -3222,7 +3222,7 @@ public class DefaultCodegen {
                 cp.required = mandatory.contains(key) ? true : false;
                 m.hasRequired = m.hasRequired || cp.required;
                 m.hasOptional = m.hasOptional || !cp.required;
-                if (cp.isEnum) {
+                if (!isAllProperties && cp.isEnum) {
                     // FIXME: if supporting inheritance, when called a second time for allProperties it is possible for
                     // m.hasEnums to be set incorrectly if allProperties has enumerations but properties does not.
                     m.hasEnums = true;
