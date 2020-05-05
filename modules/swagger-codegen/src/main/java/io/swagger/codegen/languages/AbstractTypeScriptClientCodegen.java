@@ -330,8 +330,14 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
     public String toDefaultValue(Property p) {
         if (p instanceof StringProperty) {
             StringProperty sp = (StringProperty) p;
-            if (sp.getDefault() != null) {
-                return "'" + sp.getDefault() + "'";
+            String _default = sp.getDefault();
+            if (_default != null) {
+                if (sp.getEnum() == null) {
+                    return "'" + escapeText(_default) + "'";
+                } else {
+                    // convert to enum var name later in postProcessModels
+                    return _default;
+                }
             }
             return UNDEFINED_VALUE;
         } else if (p instanceof BooleanProperty) {
@@ -431,13 +437,8 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
         if ("number".equals(datatype)) {
             return value;
         } else {
-            return "\'" + escapeText(value) + "\'";
+            return "'" + escapeText(value) + "'";
         }
-    }
-
-    @Override
-    public String toEnumDefaultValue(String value, String datatype) {
-        return datatype + "_" + value;
     }
 
     @Override
@@ -500,6 +501,9 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
             for (CodegenProperty var : cm.allVars) {
                 if (Boolean.TRUE.equals(var.isEnum)) {
                     var.datatypeWithEnum = var.datatypeWithEnum.replace(var.enumName, cm.classname + "Enums." + var.enumName);
+                    if (var.defaultValue != null) {
+                        var.defaultValue = var.defaultValue.replace(var.enumName, cm.classname + "Enums." + var.enumName);
+                    }
                 }
             }
         }
@@ -528,6 +532,9 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
                        for (CodegenProperty var : child.allVars) {
                            if (var.isEnum && isEnumInModel(cm, var.enumName)) {
                                var.datatypeWithEnum = var.datatypeWithEnum.replace(child.classname, cm.classname);
+                               if (var.defaultValue != null) {
+                                   var.defaultValue = var.defaultValue.replace(child.classname, cm.classname);
+                               }
                                child.enumImports.add(cm.classname);
                            }
                        }
