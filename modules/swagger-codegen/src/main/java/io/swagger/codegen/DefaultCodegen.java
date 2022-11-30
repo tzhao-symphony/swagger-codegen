@@ -1892,7 +1892,7 @@ public class DefaultCodegen {
             setNonArrayMapProperty(property, type);
             if ("object".equals(p.getType()) && p instanceof ObjectProperty) {
                 ObjectProperty op = (ObjectProperty) p;
-                if (op.getProperties().isEmpty()) {
+                if (op.getProperties() == null || op.getProperties().isEmpty()) {
                     property.isFreeFormObject = true;
                 }
             }
